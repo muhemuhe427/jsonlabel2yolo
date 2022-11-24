@@ -1,0 +1,51 @@
+import json
+import os
+
+file_path = ['/data/liyonggang/hemu/yolov5/datasets/cityscapes/labels/cityscapes_val' # path of label for cityscapes here
+             ]
+name = ['rectification border','sky','road','building','static','pole','train','ground','traffic light','traffic sign','sidewalk','terrain','bus','vegetation','car','fence','person','motorcycle','cargroup','parking','dynamic','persongroup','license plate','bicycle','rider','wall','bicyclegroup','truck','trailer','bridge','polegroup','ridergroup','guard rail','caravan','tunnel','truckgroup','rail track','motorcyclegroup']  # class names
+name = ['vegetation'] # the labels map
+a = os.listdir(file_path[0])
+print(a)
+
+for j in range(len(file_path)):
+
+   for file_name in os.listdir(file_path[j]):
+       print('文件名', file_name)
+       path = os.path.join(file_path[j],file_name)
+       print(path)
+       with open(path,'r') as load_f:
+          dict = json.load(load_f)
+          print('解析后得json文件',dict)
+          h, w = dict['imgHeight'], dict['imgWidth']
+
+       print(len(dict['objects']))
+       txt_name = file_name.rsplit('.', 1)[0]
+       print(txt_name, '第一次切分')
+       txt_name = txt_name.rsplit('_', 2)[0] + '_leftImg8bit' + '.txt'
+       print(txt_name, '第二次切分')
+       path_txt = os.path.join('/data/liyonggang/hemu/yolov5/datasets/cityscapes/labels/cityscapes_val_1',
+                                 txt_name ) # path to save your labels with format '.txt'
+       f = open(path_txt, 'w')
+
+       for object in dict['objects']:
+
+            for i in range(len(dict['objects'])):
+                print(dict['objects'][i])
+                if dict['objects'][i]['label'] in name:
+                    obj_id = name.index(dict['objects'][i]['label'])
+                    label_pts = [obj_id]
+                    points = dict['objects'][i]['polygon']
+                    for t in points:
+                        label_pts.append(t[0]/w)
+                        label_pts.append(t[1]/h)
+
+                    for t in label_pts:
+                         f.write(str(t))
+                         f.write(' ')
+                    f.write('\n')
+
+                    print('打印出转换后的标注：',label_pts)
+                  #  obj_id = name.index(dict['label'][i])
+                    print(i)
+                    print('返回数组下标',obj_id)
